@@ -1,9 +1,11 @@
-import { serve } from "https://deno.land/std/http/server.ts";
+import describeRepo from "./repo/describeRepo.ts";
+import listRecords from "./repo/listRecords.ts";
+
+// move out
 import { getDID } from "../lib/getDID.ts";
+import headers from "./headers.ts";
 
-const headers = { headers: { "Content-Type": "application/json" } };
-
-async function handler (req: Request): Response {
+async function handler (req: Request): Promise<Response> {
 	const url = new URL(req.url),
 				pathname = url.pathname,
 				params = url.searchParams;
@@ -11,15 +13,7 @@ async function handler (req: Request): Response {
 	// com.atproto.repo
 	
 	// .describeRepo
-	if (pathname === "/xrpc/com.atproto.repo.describeRepo") {
-		const repo = params.get("repo");
-		if (repo) {
-			const res = await fetch(`https://bsky.social/xrpc/com.atproto.repo.describeRepo?repo=${repo}`).then(res => res.json());
-			return new Response(JSON.stringify(res), headers);
-		} else {
-			return new Response(JSON.stringify({ "error": "InvalidRequest", "message": "Error: Params must have the property \"repo\"" }), headers);
-		}
-	}
+	if (pathname === "/xrpc/com.atproto.repo.describeRepo") return describeRepo(params.get("repo")!)
 	// .listRecords
 	if (pathname === "/xrpc/com.atproto.repo.listRecords") {
 		const repo = params.get("repo"), collection = params.get("collection");
@@ -63,4 +57,4 @@ async function handler (req: Request): Response {
 	else return new Response(`Cannot GET ${pathname}`, { status: 404 });
 }
 
-serve(handler);
+Deno.serve(handler);

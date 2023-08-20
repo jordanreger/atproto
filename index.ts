@@ -1,10 +1,31 @@
-import { type BskyUser } from "./lib/bskyUser.ts";
-import bsky from "npm:@atproto/api";
-const { AtpAgent } = bsky;
+import * as xrpc from 'npm:@atproto/xrpc-server';
+import express from 'npm:express';
 
-const jordan: BskyUser = { handle: "jordanreger.com", did: "did:plc:27rjcwbur2bizjjx3zakeme5" };
-const agent = new AtpAgent({ service: "http://localhost:8000" });
+// create xrpc server
+const server = xrpc.createServer([{
+    lexicon: 1,
+    id: 'net.fjall.main',
+    defs: {
+      main: {
+        type: 'query',
+        parameters: {
+          type: 'params',
+          properties: { response: { type: 'string' } },
+        },
+        output: {
+          encoding: 'application/json',
+        },
+      },
+    },
+  }
+]);
 
-const identity = await agent.com.atproto.identity.resolveHandle({ handle: jordan.handle });
+function main(_ctx: {auth: xrpc.HandlerAuth | undefined, params: xrpc.Params, input: xrpc.HandlerInput | undefined, req: express.Request, res: express.Response}) {
+  return { encoding: 'application/json', body: {response: "⛰️" }}
+}
 
-console.log(identity);
+server.method('net.fjall.main', main);
+
+const app = express();
+app.use(server.router);
+app.listen(80);
