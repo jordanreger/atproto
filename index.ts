@@ -1,5 +1,5 @@
-import * as xrpc from 'npm:@atproto/xrpc-server';
-import express from 'npm:express';
+import * as xrpc from 'https://esm.sh/@atproto/xrpc-server';
+import express from 'https://esm.sh/express';
 
 // create xrpc server
 const server = xrpc.createServer([{
